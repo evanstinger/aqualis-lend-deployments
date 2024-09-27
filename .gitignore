@@ -14,3 +14,6 @@ out/
 # repo specific artifacts
 reports/*
 !reports/.empty
+
+# IDE
+.vscode/
