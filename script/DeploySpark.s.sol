@@ -5,21 +5,21 @@ import "forge-std/Script.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {ScriptTools} from "dss-test/ScriptTools.sol";
 
-import {InitializableAdminUpgradeabilityProxy} from 'sparklend-v1-core/contracts/dependencies/openzeppelin/upgradeability/InitializableAdminUpgradeabilityProxy.sol';
+import {InitializableAdminUpgradeabilityProxy} from '@aave/core-v3/contracts/dependencies/openzeppelin/upgradeability/InitializableAdminUpgradeabilityProxy.sol';
 
-import {PoolAddressesProviderRegistry} from "sparklend-v1-core/contracts/protocol/configuration/PoolAddressesProviderRegistry.sol";
-import {PoolAddressesProvider} from "sparklend-v1-core/contracts/protocol/configuration/PoolAddressesProvider.sol";
-import {AaveProtocolDataProvider} from "sparklend-v1-core/contracts/misc/AaveProtocolDataProvider.sol";
-import {PoolConfigurator} from "sparklend-v1-core/contracts/protocol/pool/PoolConfigurator.sol";
-import {Pool} from "sparklend-v1-core/contracts/protocol/pool/Pool.sol";
-import {ACLManager} from "sparklend-v1-core/contracts/protocol/configuration/ACLManager.sol";
-import {AaveOracle} from 'sparklend-v1-core/contracts/misc/AaveOracle.sol';
+import {PoolAddressesProviderRegistry} from "@aave/core-v3/contracts/protocol/configuration/PoolAddressesProviderRegistry.sol";
+import {PoolAddressesProvider} from "@aave/core-v3/contracts/protocol/configuration/PoolAddressesProvider.sol";
+import {AaveProtocolDataProvider} from "@aave/core-v3/contracts/misc/AaveProtocolDataProvider.sol";
+import {PoolConfigurator} from "@aave/core-v3/contracts/protocol/pool/PoolConfigurator.sol";
+import {Pool} from "@aave/core-v3/contracts/protocol/pool/Pool.sol";
+import {ACLManager} from "@aave/core-v3/contracts/protocol/configuration/ACLManager.sol";
+import {AaveOracle} from '@aave/core-v3/contracts/misc/AaveOracle.sol';
 
-import {AToken} from "sparklend-v1-core/contracts/protocol/tokenization/AToken.sol";
-import {StableDebtToken} from "sparklend-v1-core/contracts/protocol/tokenization/StableDebtToken.sol";
-import {VariableDebtToken} from "sparklend-v1-core/contracts/protocol/tokenization/VariableDebtToken.sol";
+import {AToken} from "@aave/core-v3/contracts/protocol/tokenization/AToken.sol";
+import {StableDebtToken} from "@aave/core-v3/contracts/protocol/tokenization/StableDebtToken.sol";
+import {VariableDebtToken} from "@aave/core-v3/contracts/protocol/tokenization/VariableDebtToken.sol";
 
-import {IAaveIncentivesController} from "sparklend-v1-core/contracts/interfaces/IAaveIncentivesController.sol";
+import {IAaveIncentivesController} from "@aave/core-v3/contracts/interfaces/IAaveIncentivesController.sol";
 
 import {Collector} from "aave-v3-periphery/treasury/Collector.sol";
 import {CollectorController} from "aave-v3-periphery/treasury/CollectorController.sol";
@@ -29,7 +29,7 @@ import {EmissionManager} from "aave-v3-periphery/rewards/EmissionManager.sol";
 import {UiPoolDataProviderV3} from "aave-v3-periphery/misc/UiPoolDataProviderV3.sol";
 import {UiIncentiveDataProviderV3} from "aave-v3-periphery/misc/UiIncentiveDataProviderV3.sol";
 import {WrappedTokenGatewayV3} from "aave-v3-periphery/misc/WrappedTokenGatewayV3.sol";
-import {IPool} from "sparklend-v1-core/contracts/interfaces/IPool.sol";
+import {IPool} from "@aave/core-v3/contracts/interfaces/IPool.sol";
 import {WalletBalanceProvider} from "aave-v3-periphery/misc/WalletBalanceProvider.sol";
 import {IEACAggregatorProxy} from "aave-v3-periphery/misc/interfaces/IEACAggregatorProxy.sol";
 
@@ -110,6 +110,7 @@ contract DeploySpark is Script {
         // 4. Deploy and configure ACL manager
 
         aclManager = new ACLManager(poolAddressesProvider);
+        aclManager.addPoolAdmin(deployer);
 
         // 5. Additional configuration for registry and pool address provider
 
@@ -131,7 +132,7 @@ contract DeploySpark is Script {
         // 8. Deploy and initialize aToken instance
 
         aTokenImpl = new AToken(pool);
-        aTokenImpl.initialize(pool, address(0), address(0), IAaveIncentivesController(address(0)), 0, "SPTOKEN_IMPL", "SPTOKEN_IMPL", "");
+        aTokenImpl.initialize(pool, address(0), address(0), IAaveIncentivesController(address(0)), 0, "ATOKEN_IMPL", "ATOKEN_IMPL", "");
 
         // 9. Deploy and initialize stableDebtToken instance
 
@@ -167,9 +168,9 @@ contract DeploySpark is Script {
         );
         emissionManager.setRewardsController(address(incentives));
 
-        // 12. Update flash loan premium to zero.
+        // 12. Update flash loan premium to 0.05%.
 
-        poolConfigurator.updateFlashloanPremiumTotal(0);    // Flash loans are free
+        poolConfigurator.updateFlashloanPremiumTotal(5);
 
         // 13. Deploy data provider contracts.
 

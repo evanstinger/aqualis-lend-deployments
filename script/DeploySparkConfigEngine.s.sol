@@ -125,8 +125,10 @@ contract DeploySparkConfigEngine is Script {
         admin    = config.readAddress(".admin");
         deployer = msg.sender;
 
-        address[] memory reservesToSkip = new address[](1);
-        reservesToSkip[0] = config.readAddress(".daiToken");
+        // Sparklend originally has this special rate for DAI
+        // address[] memory reservesToSkip = new address[](1);
+        // reservesToSkip[0] = config.readAddress(".daiToken");
+        address[] memory reservesToSkip = new address[](0);
 
         vm.startBroadcast();
         transparentProxyFactory = new TransparentProxyFactory();
